@@ -104,10 +104,10 @@ class GeneticAlgorithm:
     distance_matrix_list = []
     flow_matrix_list = []
 
-    def __init__(self, p_m, p_x, s, pop_size, gen, matrix_index):
+    def __init__(self, p_m, p_x, tour, pop_size, gen, matrix_index):
         self.p_m = p_m
         self.p_x = p_x
-        self.s = s
+        self.tour = tour
         self.pop_size = pop_size
         self.gen = gen
         self.distance_matrix = self.distance_matrix_list[matrix_index]
@@ -121,8 +121,17 @@ class GeneticAlgorithm:
         for i in range(count-1):
             for j in range(i + 1, count):
                 value += self.flow_matrix[i][j] * self.distance_matrix[individual.dna[i]][individual.dna[j]]
-        individual.value = value
+        individual.value = 1/value
         pass
+
+    def tournament_selection(self, tour):
+        selected_individuals = []
+        for i in range(len(self.population)):
+            population = self.population
+            random.shuffle(population)
+            candidates = population[:tour]
+            selected_individuals.append(candidates.sort(key=lambda x: x.value, reverse=True)[0])
+        return selected_individuals
 
 
 

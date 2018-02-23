@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import itertools as it
 
 
 def roulette(individual_list, weight_sum):
@@ -136,13 +137,15 @@ class GeneticAlgorithm:
                 value += self.flow_matrix[i][j] * self.distance_matrix[individual.dna[i]][individual.dna[j]]
         individual.value = 1/value
         pass
+
     def roulette_selection(self):
         selected_individuals = []
         weight_sum = sum(i.value for i in self.population)
         for i in range(len(self.population)):
             selected_individuals.append(roulette(self.population, weight_sum))
         return selected_individuals
-	def tournament_selection(self, tour):
+
+    def tournament_selection(self, tour):
         selected_individuals = []
         for i in range(len(self.population)):
             population = self.population
@@ -150,5 +153,19 @@ class GeneticAlgorithm:
             candidates = population[:tour]
             selected_individuals.append(candidates.sort(key=lambda x: x.value, reverse=True)[0])
         return selected_individuals
+
+    def brut_force_solution(self):
+        best = Individual()
+        best_value = 0
+        best_solution = []
+        for i in it.permutations(range(self.gene_count)):
+            best.dna = i
+            self.evaluate_individual()
+            if best.value < best_value:
+                best_solution = best.dna
+                best_value = best.value
+        print(best_solution)
+        print(best_value)
+
 
 

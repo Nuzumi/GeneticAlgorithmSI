@@ -40,10 +40,10 @@ def load_files_to_genetic_algorithm(count):
 
 def combine_individual(individual1, individual2, combine_point_count):
     gene_count = individual1.gene_count
-    if combine_point_count > gene_count-1:
-        combine_point_count = gene_count-1
-    combine_points = take_random_from_list(list(range(gene_count-2)), combine_point_count)
-    combine_points = list(map(lambda x: x+1, combine_points))
+    if combine_point_count > gene_count - 1:
+        combine_point_count = gene_count - 1
+    combine_points = take_random_from_list(list(range(gene_count - 2)), combine_point_count)
+    combine_points = list(map(lambda x: x + 1, combine_points))
     combine_points.sort()
 
     new_dna1 = []
@@ -69,6 +69,19 @@ def combine_individual(individual1, individual2, combine_point_count):
         if i.is_dna_incorrect():
             i.repair_dna()
     return individual_list
+
+
+
+def make_children(population, px, combine_point_count):
+    population_shuffle = population
+    random.shuffle(population_shuffle)
+    population_shuffle = population_shuffle[0:(px * len(population_shuffle))]
+    rest_population = population - population_shuffle
+    for i in range(len(population_shuffle)):
+        rest_population.append(combine_individual(population_shuffle[i], population_shuffle[i+1], combine_point_count))
+        i += 1
+
+    return rest_population
 
 
 class Individual:
@@ -117,7 +130,7 @@ class GeneticAlgorithm:
     distance_matrix_list = []
     flow_matrix_list = []
 
-    def __init__(self, p_m, p_x, tour, pop_size, gen, matrix_index):
+    def __init__(self, p_m, p_x, tour, pop_size, gen, combine_point_count, matrix_index):
         self.p_m = p_m
         self.p_x = p_x
         self.tour = tour
@@ -128,6 +141,44 @@ class GeneticAlgorithm:
         self.population = []
         self.gene_count = len(self.flow_matrix[0])
         self.pop_value_sum = 0
+        self.combine_point_count = combine_point_count
+        self.best_of_generations = []
+        if tour == 0:
+            self.select_function = self.roulette_selection()
+        else:
+            self.select_function = self.tournament_selection(tour)
+
+    def start_evolution(self):
+        gen = 1
+
+        for i in range(self.pop_size):
+            self.population.append(Individual([], len(self.distance_matrix[0])))
+            self.population[i].generate_random_dna()
+
+        while gen != self.gen:
+            self.evaluate_all_individual(self)
+            self.best_of_generations.append(self.choose_alpha_individual_of_generation())
+            self.population = self.select_function
+            self.population = make_children(self.population, self.p_x, self.combine_point_count)
+            self.mutate_population()
+            gen += 1
+
+        print(self.best_of_generations)
+        pass
+
+    def choose_alpha_individual_of_generation(self):
+        population = self.population
+        population.sort(key=lambda x: x.value , reverse=True)
+        return population[0]
+        
+    def mutate_population(self):
+        for i in self.population:
+            if random.uniform(0.0, 1.0) <= self.p_m:
+                i.mutate()
+            
+    def evaluate_all_individuals(self):
+        for i in self.population:
+            self.evaluate_individual(i)
 
     def evaluate_individual(self, individual):
         value = 0

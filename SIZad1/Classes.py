@@ -2,6 +2,15 @@ import random
 import numpy as np
 
 
+def roulette(individual_list, weight_sum):
+    value = random.uniform(0.0, 1.0) * weight_sum
+    for i in individual_list:
+        value -= i.value
+        if value < 0:
+            return i
+    return individual_list[len(individual_list) - 1]
+
+
 def take_random_from_list(list_to_take, count):
     value = []
     random.shuffle(list_to_take)
@@ -54,7 +63,11 @@ def combine_individual(individual1, individual2, combine_point_count):
                 swap_counter += 1
                 swap = not swap
 
-    return [Individual(new_dna1, gene_count), Individual(new_dna2, gene_count)]
+    individual_list = [Individual(new_dna1, gene_count), Individual(new_dna2, gene_count)]
+    for i in individual_list:
+        if i.is_dna_incorrect():
+            i.repair_dna()
+    return individual_list
 
 
 class Individual:
@@ -83,7 +96,6 @@ class Individual:
         if correct == dna:
             return False
         return True
-        pass
 
     def repair_dna(self):
         counter = list(np.zeros(shape=(1, len(self.dna)))[0])
@@ -114,6 +126,7 @@ class GeneticAlgorithm:
         self.flow_matrix = self.flow_matrix_list[matrix_index]
         self.population = []
         self.gene_count = len(self.flow_matrix[0])
+        self.pop_value_sum = 0
 
     def evaluate_individual(self, individual):
         value = 0
@@ -123,8 +136,13 @@ class GeneticAlgorithm:
                 value += self.flow_matrix[i][j] * self.distance_matrix[individual.dna[i]][individual.dna[j]]
         individual.value = 1/value
         pass
-
-    def tournament_selection(self, tour):
+    def roulette_selection(self):
+        selected_individuals = []
+        weight_sum = sum(i.value for i in self.population)
+        for i in range(len(self.population)):
+            selected_individuals.append(roulette(self.population, weight_sum))
+        return selected_individuals
+	def tournament_selection(self, tour):
         selected_individuals = []
         for i in range(len(self.population)):
             population = self.population
@@ -132,7 +150,5 @@ class GeneticAlgorithm:
             candidates = population[:tour]
             selected_individuals.append(candidates.sort(key=lambda x: x.value, reverse=True)[0])
         return selected_individuals
-
-
 
 

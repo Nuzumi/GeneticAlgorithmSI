@@ -5,16 +5,34 @@ import numpy as np
 
 
 def main():
-    Cl.load_files_to_genetic_algorithm(5)
-    a = Cl.GeneticAlgorithm(0.08, 0.7, 5, 100, 200, 1, 4)
-    a.start_evolution()
-    axis_x = np.linspace(0, a.generations_count)
-    axis_y_best = a.best_of_generations
-    axis_y_average = a.average_of_generations
-    axis_y_worst = a.worst_of_generations
+    Cl.load_files_to_genetic_algorithm(1)
+    start_genetic_algorithm(0.06, 0.8, 10, 150, 125, 1, 0, 25)
+    pass
+
+
+def start_genetic_algorithm(p_m, p_x, tour, pop_size, generations_count, combine_point_count, matrix_index, genetic_iterations):
+    best_average = np.zeros(shape=(genetic_iterations, generations_count))
+    average_average = np.zeros(shape=(genetic_iterations, generations_count))
+    worst_average = np.zeros(shape=(genetic_iterations, generations_count))
+    for i in range(genetic_iterations):
+        genetic = Cl.GeneticAlgorithm(p_m, p_x, tour, pop_size, generations_count, combine_point_count, matrix_index)
+        genetic.start_evolution()
+        best_average[i] = genetic.best_of_generations
+        average_average[i] = genetic.average_of_generations
+        worst_average[i] = genetic.worst_of_generations
+
+    best_average = np.average(best_average, axis=0)
+    average_average = np.average(average_average, axis=0)
+    worst_average = np.average(worst_average, axis=0)
+    show_chart(generations_count, best_average, average_average, worst_average)
+    pass
+
+
+def show_chart(x_count, y_best, y_average, y_worst):
+    axis_x = np.linspace(0, x_count)
     trace_best = go.Scatter(
         x=axis_x,
-        y=axis_y_best,
+        y=y_best,
         mode='lines+markers',
         name='best',
         line=dict(
@@ -24,7 +42,7 @@ def main():
     )
     trace_average = go.Scatter(
         x=axis_x,
-        y=axis_y_average,
+        y=y_average,
         mode='lines+markers',
         name='average',
         line=dict(
@@ -33,7 +51,7 @@ def main():
     )
     trace_worst = go.Scatter(
         x=axis_x,
-        y=axis_y_worst,
+        y=y_worst,
         mode='lines+markers',
         name='worst',
         line=dict(
@@ -41,30 +59,6 @@ def main():
         )
     )
     plot([trace_average, trace_best, trace_worst], 'chart.html')
-    pass
-
-
-def start_genetic_algorithm(p_m, p_x, tour, pop_size, generations_count, combine_point_count, matrix_index, genetic_iterations):
-    genetic = Cl.GeneticAlgorithm(p_m, p_x, tour, pop_size, generations_count, combine_point_count, matrix_index)
-    best_average = np.zeros(shape=(generations_count, genetic_iterations))
-    average_average = np.zeros(shape=(generations_count, genetic_iterations))
-    worst_average = np.zeros(shape=(generations_count, genetic_iterations))
-    for i in range(genetic_iterations):
-        genetic.start_evolution()
-        best_average[i] = genetic.best_of_generations
-        average_average[i] = genetic.average_of_generations
-        worst_average[i] = genetic.worst_of_generations
-
-    np.sum(best_average, axis=0)
-    np.sum(average_average, axis=0)
-    np.sum(worst_average, axis=0)
-    best_average /= genetic_iterations
-    average_average /= genetic_iterations
-    worst_average /= genetic_iterations
-    pass
-
-
-def show_chart():
     pass
 
 

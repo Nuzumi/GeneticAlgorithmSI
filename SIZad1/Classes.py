@@ -1,7 +1,5 @@
 import random
 import numpy as np
-import plotly as plot
-import Individual
 from Generation import Generation as Gen
 from Individual import Individual as Ind
 import itertools as it
@@ -94,8 +92,10 @@ class GeneticAlgorithm:
             self.best_of_generations.append(best_alpha_of_gen)
             self.worst_of_generations.append(worst_of_gen)
             self.average_of_generations.append(self.generations[gen].get_average_of_population())
+            '''
             print(gen)
             print(len(self.generations[gen].population))
+            '''
             gen += 1
         pass
 

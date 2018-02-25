@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from Individual import Individual
 
 
@@ -22,9 +23,13 @@ class Generation:
 
     '''Najlepszy osobnik z populacji'''
     def choose_alpha_individual(self):
-        population = self.population
-        population.sort(key=lambda x: x.value, reverse=True)
-        return population[0]
+        return max(i.value for i in self.population)
+
+    def choose_looser_individual(self):
+        return min(i.value for i in self.population)
+
+    def get_average_of_population(self):
+        return np.average([i.value for i in self.population])
 
     def mutate_population(self, p_m):
         for i in self.population:
@@ -35,13 +40,13 @@ class Generation:
     def make_children(self, px, combine_point_count):
         population_shuffle = self.population
         random.shuffle(population_shuffle)
-        population_shuffle = population_shuffle[0:int(px * len(population_shuffle))]
-        rest_population = self.population[int(px * len(population_shuffle)):]
-        for i in range(len(population_shuffle) - 1):
+        population_shuffle = population_shuffle[0:int(px * len(self.population))]
+        rest_population = self.population[int(px * len(self.population)):]
+        iterations = len(self.population) - len(rest_population)
+        for i in range(0, iterations, 2):
             children = population_shuffle[i].combine_individual(population_shuffle[i + 1], combine_point_count)
             rest_population.append(children[0])
             rest_population.append(children[1])
-            i += 1
 
         return rest_population
 

@@ -5,6 +5,7 @@ import Individual
 from Generation import Generation as Gen
 from Individual import Individual as Ind
 import itertools as it
+from operator import attrgetter
 
 
 def load_files_to_genetic_algorithm(count):
@@ -53,6 +54,8 @@ class GeneticAlgorithm:
         self.pop_value_sum = 0
         self.combine_point_count = combine_point_count
         self.best_of_generations = []
+        self.average_of_generations = []
+        self.worst_of_generations = []
         '''Zalezny wybor metody selekcji'''
         if tour == 0:
             self.select_function = self.roulette_selection
@@ -76,23 +79,24 @@ class GeneticAlgorithm:
                 '''Przepisuje populacje "wyzej" i na niej dzialam, potem zmieniam ja na jej dzieci'''
                 generation = self.generations[gen-1]
                 self.generations.append(generation)
-                '''Ewaluuje w niej wszystkich osobnikow'''
-                self.generations[gen].evaluate_all_individuals(self.flow_matrix, self.distance_matrix)
                 '''Podmieniam te generacje na tylko wybranych prawdopodobnych do zostania rodzicem'''
                 self.generations[gen].population = self.select_function(self.generations[gen].population, self.tour)
                 '''Podmieniam generacje na jej dzieci'''
                 self.generations[gen].population = self.generations[gen].make_children(self.p_x, self.combine_point_count)
                 '''Mutuje'''
                 self.generations[gen].mutate_population(self.p_m)
+                '''Ewaluuje w niej wszystkich osobnikow'''
+                self.generations[gen].evaluate_all_individuals(self.flow_matrix, self.distance_matrix)
+
             '''Biore sobie najlepszego z generacji'''
             best_alpha_of_gen = self.generations[gen].choose_alpha_individual()
+            worst_of_gen = self.generations[gen].choose_looser_individual()
             self.best_of_generations.append(best_alpha_of_gen)
+            self.worst_of_generations.append(worst_of_gen)
+            self.average_of_generations.append(self.generations[gen].get_average_of_population())
             print(gen)
             print(len(self.generations[gen].population))
             gen += 1
-
-        for i in self.best_of_generations:
-            print(i.value)
         pass
 
     def roulette_selection(self, population, dummy):
@@ -108,7 +112,8 @@ class GeneticAlgorithm:
             population = population
             random.shuffle(population)
             candidates = population[:tour]
-            selected_individuals.append(candidates.sort(key=lambda x: x.value, reverse=True)[0])
+            candidate = max(candidates, key=attrgetter('value'))
+            selected_individuals.append(candidate)
         return selected_individuals
 
     @staticmethod

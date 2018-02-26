@@ -23,10 +23,10 @@ class Generation:
 
     '''Najlepszy osobnik z populacji'''
     def choose_alpha_individual(self):
-        return max(i.value for i in self.population)
+        return min(i.value for i in self.population)
 
     def choose_looser_individual(self):
-        return min(i.value for i in self.population)
+        return max(i.value for i in self.population)
 
     def get_average_of_population(self):
         return np.average([i.value for i in self.population])

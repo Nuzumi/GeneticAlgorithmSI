@@ -1,12 +1,14 @@
 import Classes as Cl
 import plotly.graph_objs as go
 from plotly.offline import plot
+from  Individual import Individual
 import numpy as np
 
 
 def main():
     Cl.load_files_to_genetic_algorithm(1)
-    start_genetic_algorithm(0.06, 0.8, 10, 150, 125, 1, 0, 25)
+
+    start_genetic_algorithm(0.03, 0.8, 3, 100, 100, 1, 0, 5)
     pass
 
 

@@ -20,10 +20,12 @@ class Individual:
     def evaluate_individual(self, flow_matrix, distance_matrix):
         value = 0
         count = self.gene_count
-        for i in range(count-1):
-            for j in range(i + 1, count):
-                value += flow_matrix[i][j] * distance_matrix[self.dna[i]][self.dna[j]]
-        self.value = 1/value
+        for i in range(count):
+            for j in range(i, count):
+                x = distance_matrix[i][j]
+                y = flow_matrix[self.dna[i]-1][self.dna[j]-1]
+                value += 2 * x * y
+        self.value = value
         pass
 
     '''zamienia 2 geny ze soba miejscami'''

@@ -12,15 +12,16 @@ def load_files_to_genetic_algorithm(count):
             matrix_dimension = int(f.readline())
             flow_matrix = np.zeros(shape=(matrix_dimension, matrix_dimension))
             distance_matrix = np.zeros(shape=(matrix_dimension, matrix_dimension))
-            f.readline()
-            for row in range(matrix_dimension):
-                flow_matrix[row] = np.fromstring(f.readline(), dtype=int, sep=' ')
-            GeneticAlgorithm.flow_matrix_list.append(flow_matrix)
 
             f.readline()
             for row in range(matrix_dimension):
                 distance_matrix[row] = np.fromstring(f.readline(), dtype=int, sep=' ')
             GeneticAlgorithm.distance_matrix_list.append(distance_matrix)
+
+            f.readline()
+            for row in range(matrix_dimension):
+                flow_matrix[row] = np.fromstring(f.readline(), dtype=int, sep=' ')
+            GeneticAlgorithm.flow_matrix_list.append(flow_matrix)
 
 
 def take_random_from_list(list_to_take, count):
@@ -112,7 +113,7 @@ class GeneticAlgorithm:
             population = population
             random.shuffle(population)
             candidates = population[:tour]
-            candidate = max(candidates, key=attrgetter('value'))
+            candidate = min(candidates, key=attrgetter('value'))
             selected_individuals.append(candidate)
         return selected_individuals
 

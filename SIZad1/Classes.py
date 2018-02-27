@@ -78,9 +78,14 @@ class GeneticAlgorithm:
                 '''Przepisuje populacje "wyzej" i na niej dzialam, potem zmieniam ja na jej dzieci'''
                 generation = self.generations[gen-1]
                 self.generations.append(generation)
+
+                self.generations[gen].evaluate_all_individuals(self.flow_matrix, self.distance_matrix)
                 '''Podmieniam te generacje na tylko wybranych prawdopodobnych do zostania rodzicem'''
                 self.generations[gen].population = self.select_function(self.generations[gen].population, self.tour)
                 '''Podmieniam generacje na jej dzieci'''
+
+                self.generations[gen].evaluate_all_individuals(self.flow_matrix, self.distance_matrix)
+                self.generations[gen].population.sort(key=attrgetter('value'))
                 self.generations[gen].population = self.generations[gen].make_children(self.p_x, self.combine_point_count)
                 '''Mutuje'''
                 self.generations[gen].mutate_population(self.p_m)

@@ -1,6 +1,9 @@
 import random
 import numpy as np
 import Classes as Cl
+from random import randint
+import copy
+
 
 class Individual:
 
@@ -23,8 +26,8 @@ class Individual:
         for i in range(count):
             for j in range(i, count):
                 x = distance_matrix[i][j]
-                y = flow_matrix[self.dna[i]-1][self.dna[j]-1]
-                value += 2 * x * y
+                y = flow_matrix[self.dna[i]][self.dna[j]]
+                value += (2 * x * y)
         self.value = value
         pass
 
@@ -38,7 +41,7 @@ class Individual:
     def is_dna_incorrect(self):
         correct = list(range(self.gene_count))
         correct.sort()
-        dna = self.dna
+        dna = copy.copy(self.dna)
         dna.sort()
         if correct == dna:
             return False
@@ -46,16 +49,26 @@ class Individual:
 
     def repair_dna(self):
         counter = list(np.zeros(shape=(1, len(self.dna)))[0])
-        for i in self.dna:
-            counter[i] += 1
 
-        while counter.count(0) != 0:
-            missing_value = counter.index(0)
-            overgrow_value = counter.index(2)
-            index_of_missing_value = self.dna.index(overgrow_value)
-            self.dna[index_of_missing_value] = missing_value
-            counter[missing_value] = 1
-            counter[overgrow_value] = 1
+        dna = self.dna[:]
+
+        validate_dna = set(range(self.gene_count))
+        unique_dna = set(dna)
+
+        missing_values = validate_dna - unique_dna
+
+        missing_values = list(missing_values)
+
+        for i in range(len(self.dna)):
+            counter[self.dna[i]] += 1
+            if counter[self.dna[i]] == 2:
+                index = randint(0, len(missing_values) - 1)
+                random_value = missing_values[index]
+                dna[i] = random_value
+                missing_values.remove(random_value)
+                counter[self.dna[i]] -= 1
+
+        self.dna = dna
 
     '''Krzyzowanie osobnika z innym w zaleznosci od punktow krzyzowania -> zrobic wybieralne krzyzowanie'''
     def combine_individual(self, individual2, combine_point_count):
@@ -66,23 +79,8 @@ class Individual:
         combine_points = list(map(lambda x: x + 1, combine_points))
         combine_points.sort()
 
-        new_dna1 = []
-        new_dna2 = []
-        swap = False
-        swap_counter = 0
-        for i in range(gene_count):
-            if swap:
-                new_dna1.append(self.dna[i])
-                new_dna2.append(individual2.dna[i])
-            else:
-                new_dna1.append(individual2.dna[i])
-                new_dna2.append(self.dna[i])
-                pass
-
-            if swap_counter < len(combine_points):
-                if i == combine_points[swap_counter]:
-                    swap_counter += 1
-                    swap = not swap
+        new_dna1 = self.dna[0:int(self.gene_count / 2)] + individual2.dna[0:int(self.gene_count / 2):]
+        new_dna2 = individual2.dna[0:int(self.gene_count / 2)] + self.dna[int(self.gene_count / 2):]
 
         individual_list = [Individual(new_dna1, gene_count), Individual(new_dna2, gene_count)]
         for i in individual_list:

@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from Individual import Individual
-
+from operator import attrgetter
 
 class Generation:
     '''Generacja zawiera populacje osobnikow'''
@@ -38,10 +38,10 @@ class Generation:
 
     '''Tworzenie dzieci pod warunkiem wyboru p_x populacji jako rodziców'''
     def make_children(self, px, combine_point_count):
+        self.population.sort(key=attrgetter('value'))
         population_shuffle = self.population
-        random.shuffle(population_shuffle)
         population_shuffle = population_shuffle[0:int(px * len(self.population))]
-        rest_population = self.population[int(px * len(self.population)):]
+        rest_population = self.population[0:int((1-px) * len(self.population))+1]
         iterations = len(self.population) - len(rest_population)
         for i in range(0, iterations, 2):
             children = population_shuffle[i].combine_individual(population_shuffle[i + 1], combine_point_count)

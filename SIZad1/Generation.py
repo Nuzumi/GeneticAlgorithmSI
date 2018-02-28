@@ -50,3 +50,26 @@ class Generation:
 
         return rest_population
 
+    def make_children_ver2(self, px, combine_point_count):
+        new_population = []
+        for i in range(self.population_count):
+            rand = random.uniform(0.0, 1.0)
+            if rand < px:
+                child = self.population[i].combine_individual(random.choice(self.population), combine_point_count)[0]
+                new_population.append(child)
+            else:
+                new_population.append(self.population[i])
+        return new_population
+        pass
+
+    def make_children_ver3(self, px, combine_point_count):
+        population_shuffle = self.population
+        population_shuffle.sort(key=lambda x: x.value)
+        population_shuffle = population_shuffle[int((1-px) * len(self.population)):]
+        rest_population = self.population[:int((1-px) * len(self.population))]
+        iterations = len(self.population) - len(rest_population)
+        for i in range(0, iterations):
+            children = population_shuffle[i].combine_individual(random.choice(population_shuffle), combine_point_count)
+            rest_population.append(children[0])
+
+        return rest_population

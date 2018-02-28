@@ -1,6 +1,8 @@
 import random
 import numpy as np
 import Classes as Cl
+import copy
+
 
 class Individual:
 
@@ -9,6 +11,7 @@ class Individual:
         self.dna = dna
         self.gene_count = gene_count
         self.value = None
+        self.immune = False
 
     '''Randomowe wyznaczenie lokacji/ dna'''
     def generate_random_dna(self):
@@ -23,7 +26,7 @@ class Individual:
         for i in range(count):
             for j in range(i, count):
                 x = distance_matrix[i][j]
-                y = flow_matrix[self.dna[i]-1][self.dna[j]-1]
+                y = flow_matrix[self.dna[i]][self.dna[j]]
                 value += 2 * x * y
         self.value = value
         pass
@@ -38,7 +41,7 @@ class Individual:
     def is_dna_incorrect(self):
         correct = list(range(self.gene_count))
         correct.sort()
-        dna = self.dna
+        dna = copy.copy(self.dna)
         dna.sort()
         if correct == dna:
             return False

@@ -57,7 +57,7 @@ class GeneticAlgorithm:
         self.worst_of_generations = []
         '''Zalezny wybor metody selekcji'''
         if tour == 0:
-            self.select_function = self.roulette_selection
+            self.select_function = self.ranking_selection
         else:
             self.select_function = self.tournament_selection
 
@@ -87,6 +87,7 @@ class GeneticAlgorithm:
                 '''Ewaluuje w niej wszystkich osobnikow'''
                 self.generations[gen].evaluate_all_individuals(self.flow_matrix, self.distance_matrix)
 
+
             '''Biore sobie najlepszego z generacji'''
             best_alpha_of_gen = self.generations[gen].choose_alpha_individual()
             worst_of_gen = self.generations[gen].choose_looser_individual()
@@ -101,30 +102,55 @@ class GeneticAlgorithm:
         pass
 
     def roulette_selection(self, population, dummy):
-        selected_individuals = []
-        weight_sum = sum(i.value for i in population)
-        for i in range(len(population)):
-            selected_individuals.append(self.roulette(population, weight_sum))
-        return selected_individuals
+        pop = population
+        pop.sort(key=lambda x: x.value)
+        inverse_value_list = [1/x.value for x in pop]
+        candidates = []
+        for i in range(len(pop)):
+            value_sum = sum(inverse_value_list)
+            try_ = True
+            rand = random.uniform(0.0, 1.0) * value_sum
+            counter = 0
+            while try_:
+                if rand > value_sum:
+                    candidates.append(population[counter-1])
+                    try_ = False
+                value_sum -= inverse_value_list[counter]
+                counter += 1
+        return candidates
+
+
 
     def tournament_selection(self, population, tour):
         selected_individuals = []
         for i in range(len(population)):
-            population = population
             random.shuffle(population)
             candidates = population[:tour]
             candidate = min(candidates, key=attrgetter('value'))
             selected_individuals.append(candidate)
         return selected_individuals
 
-    @staticmethod
-    def roulette(individual_list, weight_sum):
-        value = random.uniform(0.0, 1.0) * weight_sum
-        for i in individual_list:
-            value -= i.value
-            if value < 0:
-                return i
-        return individual_list[len(individual_list) - 1]
+    def ranking_selection(self, population, dummy):
+        pop = population
+        pop.sort(key=lambda x: x.value)
+        rank = list(range(self.pop_size*2, 0, -2))
+        rank.reverse()
+        rank_sum = sum(rank)
+        candidates = []
+        for i in range(self.pop_size):
+            rand = random.uniform(0.01, 0.99)
+            rand *= rank_sum
+            candidates.append(pop[self.rank_s(rand, rank, rank_sum)])
+        return candidates
+
+    def rank_s(self, rand_val, rank, rank_sum):
+        counter = 0
+        while True:
+            if rand_val >= rank_sum:
+                return counter-1
+            rank_sum -= rank[counter]
+            counter += 1
+
 
     def brut_force_solution(self):
         best = Ind([], self.gene_count)

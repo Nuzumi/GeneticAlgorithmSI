@@ -80,8 +80,29 @@ class Individual:
         combine_points = list(map(lambda x: x + 1, combine_points))
         combine_points.sort()
 
-        new_dna1 = self.dna[0:int(self.gene_count / 2)] + individual2.dna[0:int(self.gene_count / 2):]
-        new_dna2 = individual2.dna[0:int(self.gene_count / 2)] + self.dna[int(self.gene_count / 2):]
+        'new_dna1 = self.dna[0:int(self.gene_count / 2)] + individual2.dna[0:int(self.gene_count / 2):]'
+        'new_dna2 = individual2.dna[0:int(self.gene_count / 2)] + self.dna[int(self.gene_count / 2):]'
+
+        new_dna1 = []
+        new_dna2 = []
+
+        swap = False
+
+        swap_counter = 0
+
+        for i in range(gene_count):
+            if swap:
+                new_dna1.append(self.dna[i])
+                new_dna2.append(individual2.dna[i])
+            else:
+                new_dna1.append(individual2.dna[i])
+                new_dna2.append(self.dna[i])
+
+                pass
+            if swap_counter < len(combine_points):
+                if i == combine_points[swap_counter]:
+                    swap_counter += 1
+                    swap = not swap
 
         individual_list = [Individual(new_dna1, gene_count), Individual(new_dna2, gene_count)]
         for i in individual_list:

@@ -4,7 +4,7 @@ from Generation import Generation as Gen
 from Individual import Individual as Ind
 import itertools as it
 from operator import attrgetter
-
+import copy
 
 def load_files_to_genetic_algorithm(count):
     for i in range(count):
@@ -37,6 +37,7 @@ class GeneticAlgorithm:
 
     distance_matrix_list = []
     flow_matrix_list = []
+    first_generation = None
 
     def __init__(self, p_m, p_x, tour, pop_size, generations_count, combine_point_count, matrix_index):
         self.p_m = p_m
@@ -61,6 +62,10 @@ class GeneticAlgorithm:
         else:
             self.select_function = self.tournament_selection
 
+    def __str__(self):
+        return 'PM: ' + str(self.p_m) + ' PX: ' + str(self.p_x) + ' Tur: ' + str(self.tour) + ' Populacja: ' + str(self.pop_size) + ' Ilość generacji: ' + str(self.generations_count) + ' Punkty krzyżowania: ' + str(self.combine_point_count)
+
+
     def start_evolution(self):
         gen = 0
         while gen != self.generations_count:
@@ -69,7 +74,11 @@ class GeneticAlgorithm:
             if gen == 0:
                 generation = Gen(self.pop_size, self.gene_count)
                 '''Pierwsza generacje losuje'''
-                generation.generate_generation()
+                if GeneticAlgorithm.first_generation is None:
+                    generation.generate_generation()
+                    GeneticAlgorithm.first_generation = copy.deepcopy(generation)
+                else:
+                    generation = copy.deepcopy(GeneticAlgorithm.first_generation)
                 '''Tworze kolejna generacje, dodaje ja do listy'''
                 self.generations.append(generation)
                 '''Ewaluuje w niej wszystkich osobnikow'''
